@@ -1,6 +1,7 @@
-use oxidize::configuration::get_configuration;
-use sqlx::{Connection, PgConnection, PgPool};
+use oxidize::configuration::{get_configuration, DatabaseSettings};
+use sqlx::{Connection, Executor, PgConnection, PgPool};
 use std::net::TcpListener;
+use uuid::Uuid;
 
 pub struct TestApp {
     pub address: String,
@@ -11,10 +12,9 @@ async fn spawn_app() -> TestApp {
     let listener = TcpListener::bind("127.0.0.1:0").expect("failed to bind random port");
     let port = listener.local_addr().unwrap().port();
     let address = format!("http://127.0.0.1:{}", port);
-    let config = get_configuration().expect("failed to get config");
-    let pool = PgPool::connect(&config.database.connection_string())
-        .await
-        .expect("failed to connect to postgres");
+    let mut config = get_configuration().expect("failed to get config");
+    config.database.database_name = Uuid::new_v4().to_string();
+    let pool = configure_database(&config.database).await;
     let server = oxidize::startup::run(listener, pool.clone()).expect("failed to bind address");
 
     let _ = tokio::spawn(server);
@@ -23,6 +23,26 @@ async fn spawn_app() -> TestApp {
         address,
         db_pool: pool,
     }
+}
+
+pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
+    let mut connection = PgConnection::connect(&config.connection_string_postgres_db())
+        .await
+        .expect("failed to connect to postgres");
+    connection
+        .execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
+        .await
+        .expect("Failed to create database");
+
+    let connection_pool = PgPool::connect(&config.connection_string())
+        .await
+        .expect("failed to connect to postgres");
+    sqlx::migrate!("./migrations")
+        .run(&connection_pool)
+        .await
+        .expect("failed to migrate to database");
+
+    connection_pool
 }
 
 #[tokio::test]

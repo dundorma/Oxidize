@@ -30,4 +30,11 @@ impl DatabaseSettings {
             self.username, self.password, self.host, self.port, self.database_name
         )
     }
+
+    pub fn connection_string_postgres_db(&self) -> String {
+        format!(
+            "postgres://{}:{}@{}:{}/postgres",
+            self.username, self.password, self.host, self.port
+        )
+    }
 }
