@@ -1,13 +1,14 @@
-use env_logger::Env;
-use sqlx::PgPool;
-use std::net::TcpListener;
-
 use oxidize::configuration::get_configuration;
 use oxidize::startup::run;
+use oxidize::telemetry::{get_subscriber, init_subscriber};
+use sqlx::postgres::PgPool;
+use std::net::TcpListener;
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
-    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+    let subscriber = get_subscriber("oxidize".into(), "info".into());
+    init_subscriber(subscriber);
+
     let config = get_configuration().expect("failed to read configuration.");
     let connection_pool = PgPool::connect(&config.database.connection_string())
         .await
