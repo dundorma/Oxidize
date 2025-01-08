@@ -1,3 +1,4 @@
 /target
+/.sqlx
 set-env.sh
 .nvim-dap.lua

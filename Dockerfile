@@ -6,4 +6,6 @@ COPY . .
 ENV SQLX_OFFLINE true
 RUN cargo build --release
 
+EXPOSE 8008
+
 ENTRYPOINT ["./target/release/oxidize"]
