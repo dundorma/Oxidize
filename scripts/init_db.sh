@@ -17,7 +17,7 @@ if ! [ -x "$(command -v sqlx)" ]; then
   exit 1
 fi
 
-DB_USER="${POSTGRES_USER:=xxi0n}"
+DB_USER="${POSTGRES_USER:=postgres}"
 DB_PASSWORD="${POSTGRES_PASSWORD:=passwordxxi0n}"
 DB_NAME="${POSTGRES_DB:=xxi0ndb}"
 DB_PORT="${POSTGRES_PORT:=5432}"

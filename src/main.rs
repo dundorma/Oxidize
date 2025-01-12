@@ -1,8 +1,7 @@
 use oxidize::configuration::get_configuration;
 use oxidize::startup::run;
 use oxidize::telemetry::{get_subscriber, init_subscriber};
-use secrecy::ExposeSecret;
-use sqlx::postgres::PgPool;
+use sqlx::postgres::PgPoolOptions;
 use std::net::TcpListener;
 
 #[tokio::main]
@@ -11,9 +10,7 @@ async fn main() -> Result<(), std::io::Error> {
     init_subscriber(subscriber);
 
     let config = get_configuration().expect("failed to read configuration.");
-    let connection_pool =
-        PgPool::connect_lazy(&config.database.connection_string().expose_secret())
-            .expect("failed to connect to postgresql server.");
+    let connection_pool = PgPoolOptions::new().connect_lazy_with(config.database.with_db());
 
     let address = format!("{}:{}", config.application.host, config.application.port);
     let listener = TcpListener::bind(address).expect("faield to bind to port 8008");

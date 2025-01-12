@@ -3,6 +3,6 @@ application:
 database:
   host: "127.0.0.1"
   port: 5432
-  username: "xxi0n"
+  username: "postgres"
   password: "passwordxxi0n"
   database_name: "xxi0ndb"
