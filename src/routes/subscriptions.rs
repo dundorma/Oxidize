@@ -20,6 +20,7 @@ pub struct FormData {
 )]
 
 pub async fn subscribe(form: web::Form<FormData>, pool: web::Data<PgPool>) -> HttpResponse {
+    let subscriber_name = crate::domain::SubsriberName(form.name.clone());
     if !is_valid_name(&form.name) {
         return HttpResponse::BadRequest().finish();
     }
