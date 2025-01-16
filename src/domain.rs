@@ -21,11 +21,16 @@ impl SubscriberName {
             Self(s)
         }
     }
-}
 
-pub async fn insert_subscriber(
-    pool: &PgPool,
-    new_subcriber: &NewSubscriber,
-) -> Result<(), sqlx::Error> {
-    todo!("implement this function")
+    pub fn inner(self) -> String {
+        self.0
+    }
+
+    pub fn inner_mut(&mut self) -> &mut str {
+        &mut self.0
+    }
+
+    pub fn inner_ref(&self) -> &str {
+        &self.0
+    }
 }
